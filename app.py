@@ -18,7 +18,7 @@ if not GOOGLE_API_KEY:
     st.stop() # Stop the app if API key is not found
 
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash-lite')
+model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
 
 # --- 1. Dummy Data Generation ---
 def generate_dummy_data():
@@ -37,7 +37,7 @@ def generate_dummy_data():
     for i in range(5):
         random_dt = random_date_in_range(start_date, end_date)
         data.append({
-            'Vessel_name': 'Vessel A',
+            'Vessel_name': 'Navig8 Messi',
             'Time': random_dt.strftime('%Y-%m-%d %H:%M'),
             'Draft': round(10.0 + random.uniform(-0.5, 0.5), 2), # Random draft around 10.0
             'Laden/Ballst': 'Laden',
@@ -47,7 +47,7 @@ def generate_dummy_data():
     for i in range(5):
         random_dt = random_date_in_range(start_date, end_date)
         data.append({
-            'Vessel_name': 'Vessel B',
+            'Vessel_name': 'Navig8 Guard',
             'Time': random_dt.strftime('%Y-%m-%d %H:%M'),
             'Draft': round(5.0 + random.uniform(-0.2, 0.2), 2), # Random draft around 5.0
             'Laden/Ballst': 'Ballast',
@@ -95,13 +95,14 @@ def check_for_contradiction(vessel_name, new_laden_ballast, df, lookback_rows=5)
             return True, previous_status # Contradiction detected
     return False, None
 
+
 def generate_polite_message(vessel_name, previous_status, new_status):
     """Uses Gemini API to generate a polite message for contradiction."""
     prompt = f"""
-    You are a helpful assistant for a maritime data entry system. A user is trying to enter noon data for a vessel.
-    The vessel '{vessel_name}' has consistently been recorded as '{previous_status}' in its last 5 entries, but the new entry suggests it is now '{new_status}'.
+    You are a helpful assistant for a maritime data entry system. Vessel Master is trying to enter noon data for a vessel.
+    The vessel '{vessel_name}' has consistently been recorded as '{previous_status}' in its last couple of entries, but the new entry suggests it is now '{new_status}'.
 
-    Please craft a polite and clear message to the user, explaining this potential discrepancy and asking if they wish to proceed with this change or if they would like to correct the 'Laden/Ballst' status. Emphasize that this is just a flag for review.
+    Please craft a polite and concise chat to the user, explaining this potential discrepancy and asking if they wish to proceed with this change or if they would like to correct the 'Laden/Ballst' status. Emphasize that this is just a flag for review.
     """
     try:
         response = model.generate_content(prompt)
@@ -204,12 +205,21 @@ with col_form:
                                 st.session_state.contradiction_pending_confirmation = True
                                 st.session_state.entry_to_confirm = new_entry
                                 st.session_state.previous_vessel_status = prev_status
-                                st.warning(generate_polite_message(
+                                # Initialize chat history if not present
+                                if 'contradiction_chat_history' not in st.session_state:
+                                    st.session_state.contradiction_chat_history = []
+                                # Generate polite message and add to chat history
+                                polite_message = generate_polite_message(
                                     new_entry['Vessel_name'],
                                     prev_status,
                                     new_entry['Laden/Ballst']
-                                ))
-                                st.info("Please confirm your decision below.")
+                                )
+                                st.session_state.contradiction_chat_history.append({
+                                    'role': 'assistant',
+                                    'content': polite_message
+                                })
+                                st.session_state.show_contradiction_chat = True
+                                st.info("A potential contradiction was detected. See chat below.")
                             else:
                                 add_entry(new_entry)
                         else:
@@ -228,14 +238,47 @@ col_left, col_center, col_right = st.columns([1, 2, 1])
 with col_center:
     if st.session_state.contradiction_pending_confirmation:
         st.subheader("Action Required: Contradiction Detected")
-        st.markdown(f"The new entry for **{st.session_state.entry_to_confirm['Vessel_name']}** "
-                    f"suggests **{st.session_state.entry_to_confirm['Laden/Ballst']}**, "
-                    f"while recent entries were consistently **{st.session_state.previous_vessel_status}**.")
+        # Chat interface for contradiction
+        if 'contradiction_chat_history' not in st.session_state:
+            st.session_state.contradiction_chat_history = []
+        for msg in st.session_state.contradiction_chat_history:
+            if msg['role'] == 'assistant':
+                st.markdown(f"<div style='background:#4ca883;padding:10px;border-radius:8px;margin-bottom:5px;text-align:left;'><b>Bot:</b> {msg['content']}</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<div style='background:#092910;padding:10px;border-radius:8px;margin-bottom:5px;text-align:right;'><b>You:</b> {msg['content']}</div>", unsafe_allow_html=True)
+        user_input = st.chat_message("Ask a follow-up question or clarify:", key="contradiction_chat_input")
+        if st.button("Send", key="contradiction_chat_send") and user_input.strip():
+            st.session_state.contradiction_chat_history.append({'role': 'user', 'content': user_input.strip()})
+            # Compose conversation for Gemini using a more structured prompt for better context
+            conversation = "\n".join([
+                (f"User: {m['content']}" if m['role']=='user' else f"Assistant: {m['content']}")
+                for m in st.session_state.contradiction_chat_history
+            ])
+            vessel = st.session_state.entry_to_confirm.get('Vessel_name', 'the vessel')
+            prev_status = st.session_state.previous_vessel_status
+            new_status = st.session_state.entry_to_confirm.get('Laden/Ballst', '')
+            prompt = f"""
+The user is entering noon data for vessel '{vessel}'.
+The vessel has consistently been recorded as '{prev_status}' in its last entries, but the new entry suggests it is now '{new_status}'.
+A potential contradiction was detected. The following is a conversation between the user and the assistant about this contradiction. Always keep the context of the vessel and the contradiction in mind, and answer in a natural, helpful, and concise tone. If the user asks for clarification, provide details about the contradiction and why it was flagged. If the user asks about next steps, explain the available options. If the user confirms, acknowledge and guide them to proceed.
 
+{conversation}
+Assistant:"""
+            try:
+                response = model.generate_content(prompt)
+                reply = response.text.strip()
+            except Exception as e:
+                reply = f"[Error generating response: {e}]"
+            st.session_state.contradiction_chat_history.append({'role': 'assistant', 'content': reply})
+            st.rerun()
+        st.info("Please confirm your decision below.")
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Yes, proceed with this change", key="confirm_yes"):
                 add_entry(st.session_state.entry_to_confirm)
+                # Clear contradiction chat history and related session state
+                st.session_state.contradiction_chat_history = []
+                st.session_state.show_contradiction_chat = False
         with col2:
             if st.button("No, let me correct Laden/Ballast", key="confirm_no"):
                 st.session_state.contradiction_pending_confirmation = False

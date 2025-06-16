@@ -30,15 +30,15 @@ def generate_dummy_data():
         delta = (end - start).days
         random_days = random.randint(0, delta)
         return start + timedelta(days=random_days)
+    report_types = ['At Sea', 'Arrival', 'Departure', 'Arrival At Berth', 'Departure From Berth']
     # Navig8 Messi: Full Laden
     for i in range(5):
         random_dt = random_date_in_range(start_date, end_date)
         data.append({
             'Vessel_name': 'Navig8 Messi',
             'Date': random_dt.strftime('%Y-%m-%d'),
-            # 'Draft': round(10.0 + random.uniform(-0.5, 0.5), 2),
             'Laden/Ballst': 'Laden',
-            # 'Power': random.randint(14000, 16000)
+            'Report_Type': random.choice(report_types)
         })
     # Navig8 Guard: Full Ballast
     for i in range(5):
@@ -46,9 +46,8 @@ def generate_dummy_data():
         data.append({
             'Vessel_name': 'Navig8 Guard',
             'Date': random_dt.strftime('%Y-%m-%d'),
-            # 'Draft': round(5.0 + random.uniform(-0.2, 0.2), 2),
             'Laden/Ballst': 'Ballast',
-            # 'Power': random.randint(9000, 11000)
+            'Report_Type': random.choice(report_types)
         })
     df = pd.DataFrame(data)
     df['Date'] = pd.to_datetime(df['Date']).dt.date
@@ -74,26 +73,24 @@ if 'latest_added_vessel' not in st.session_state:
 
 # --- 3. Helper Functions ---
 
-def check_for_contradiction(vessel_name, new_laden_ballast, df, lookback_rows=5):
+def check_for_contradiction(vessel_name, new_laden_ballast, new_report_type, df, lookback_rows=5):
     """
-    Checks the last 'lookback_rows' for a vessel's Laden/Ballast status.
-    Flags a contradiction if all previous entries are one status and the new one is the opposite.
+    Rule-based contradiction check for Laden/Ballast status, considering Report Type and recent history.
+    Returns (is_contradiction, previous_status, reason)
     """
-    # Filter for the specific vessel and sort by time in descending order
     vessel_df = df[df['Vessel_name'] == vessel_name].sort_values(by='Date', ascending=False)
-
     if len(vessel_df) < lookback_rows:
-        # Not enough historical data to make a strong determination
-        return False, None
-
-    # Get the Laden/Ballast status of the most recent entries
+        return False, None, None
     recent_statuses = vessel_df['Laden/Ballst'].head(lookback_rows).unique()
-
-    if len(recent_statuses) == 1: # All recent entries have the same status
-        previous_status = recent_statuses[0]
-        if previous_status != new_laden_ballast:
-            return True, previous_status # Contradiction detected
-    return False, None
+    previous_status = recent_statuses[0] if len(recent_statuses) == 1 else None
+    # Rule 1: If report type is 'Arrival', 'Departure', 'Arrival At Berth', 'Departure From Berth', allow status change
+    allowed_change_types = ['Departure', 'Departure From Berth']
+    if new_report_type in allowed_change_types:
+        return False, None, None
+    # Rule 2: If all previous are same status, and new is different, and not allowed by report type, flag
+    if previous_status and previous_status != new_laden_ballast:
+        return True, previous_status, f"Status changed from {previous_status} to {new_laden_ballast} without a typical event (Report Type: {new_report_type})"
+    return False, None, None
 
 def generate_chat_response(conversation_history, vessel_name, previous_status, new_status):
     """
@@ -193,14 +190,12 @@ def add_entry(new_entry_data):
     new_df_row = pd.DataFrame([new_entry_data])
     new_df_row['Date'] = pd.to_datetime(new_df_row['Date']).dt.date
     st.session_state.noon_data = pd.concat([st.session_state.noon_data, new_df_row], ignore_index=True)
-    # Re-sort the entire DataFrame after adding a new row
     st.session_state.noon_data = st.session_state.noon_data.sort_values(by=['Vessel_name', 'Date'], ascending=[True, False]).reset_index(drop=True)
     st.success(f"New entry for {new_entry_data['Vessel_name']} added successfully!")
-    # Clear any pending states and chat history
     st.session_state.contradiction_pending_confirmation = False
     st.session_state.entry_to_confirm = {}
     st.session_state.previous_vessel_status = None
-    st.session_state.contradiction_chat_history = [] # Clear chat history on successful action
+    st.session_state.contradiction_chat_history = []
     st.session_state.latest_added_vessel = new_entry_data['Vessel_name']
 
 # --- 4. Streamlit UI ---
@@ -240,11 +235,10 @@ with col_form:
             vessel_name_input = vessel_name_selection
             if vessel_name_selection == "New Vessel":
                 vessel_name_input = st.text_input("Enter New Vessel Name", key="new_vessel_name_input")
-
-            # Only date input
             date_str = st.date_input("Date", value=datetime.now().date(), key="date_input")
             # draft = st.number_input("Draft (meters)", min_value=0.0, max_value=20.0, value=8.5, step=0.1)
             laden_ballast = st.selectbox("Laden/Ballast", options=['Laden', 'Ballast'])
+            report_type = st.selectbox("Report Type", options=['At Sea', 'Arrival', 'Departure', 'Arrival At Berth', 'Departure From Berth'], index=0)
             # power = st.number_input("Power (kW)", min_value=0, max_value=30000, value=12000, step=100)
 
             submitted = st.form_submit_button("Add Entry")
@@ -261,6 +255,7 @@ with col_form:
                         'Date': date_str,
                         # 'Draft': draft,
                         'Laden/Ballst': laden_ballast,
+                        'Report_Type': report_type
                         # 'Power': power
                     }
 
@@ -268,9 +263,10 @@ with col_form:
                     if not st.session_state.contradiction_pending_confirmation: # Removed correcting_laden_ballast check
                         # Only check for contradiction if the vessel already exists in the data
                         if new_entry['Vessel_name'] in existing_vessels:
-                            is_contradiction, prev_status = check_for_contradiction(
+                            is_contradiction, prev_status, reason = check_for_contradiction(
                                 new_entry['Vessel_name'],
                                 new_entry['Laden/Ballst'],
+                                new_entry['Report_Type'],
                                 st.session_state.noon_data
                             )
 
@@ -278,29 +274,29 @@ with col_form:
                                 st.session_state.contradiction_pending_confirmation = True
                                 st.session_state.entry_to_confirm = new_entry
                                 st.session_state.previous_vessel_status = prev_status
-                                
+                                st.session_state.contradiction_reason = reason
+
                                 # Generate initial polite message only if chat history is empty
                                 if not st.session_state.contradiction_chat_history:
                                     # For the initial message, we just want the polite text, not JSON parsing
                                     initial_message_prompt = f"""
                                         You are a helpful and polite assistant for a maritime data entry system. A user (Vessel Master) is trying to enter noon data.
                                         The vessel '{new_entry['Vessel_name']}' has consistently been recorded as '{prev_status}' in its last 5 entries, but the new entry suggests it is now '{new_entry['Laden/Ballst']}'.
-                                        The latest entry date is {date_str}.
-
+                                        The latest entry date is {date_str}. The report type is '{report_type}'.
                                         Please craft a very polite, conversational, and concise initial message to the user, strictly limited to one or two sentences.
                                         Start with a soft apology like "Hey Master, Sorry for the trouble," or similar.
-                                        Clearly state the observed change in 'Laden/Ballst' status for the vessel on the given date.
+                                        Clearly state the observed change in 'Laden/Ballst' status for the vessel on the given date and mention the report type.
                                         Then, mention that your analysis of previous entries shows the consistent '{prev_status}' status.
                                         Finally, ask if they would like to review this change.
 
-                                        Example desired tone: "Hey Master, Sorry for the trouble, I noticed a change in the 'Laden/Ballast' status for 'Navig8 Gallantry' from 'Laden' to 'Ballast' on 2025-06-11. When I analyze previous entries, it shows 'Laden'. Would you like to review this change?"
+                                        Example desired tone: "Hey Master, Sorry for the trouble, I noticed a change in the 'Laden/Ballast' status for 'Navig8 Gallantry' from 'Laden' to 'Ballast' on 2025-06-11. When I analyze report type entries, it is supposed to be 'Laden'. Would you like to review this change?"
                                         """
                                     try:
                                         initial_polite_message = model.generate_content(initial_message_prompt).text
                                     except Exception as e:
                                         initial_polite_message = (f"We noticed a potential change for **{new_entry['Vessel_name']}**: "
                                                                   f"It was previously **{prev_status}** for the last few entries, "
-                                                                  f"but the new data shows **{new_entry['Laden/Ballst']}**. "
+                                                                  f"but the new data shows **{new_entry['Laden/Ballst']}** (Report Type: {report_type}). "
                                                                   f"Is this change intentional, or would you like to correct the 'Laden/Ballast' status?")
                                     
                                     st.session_state.contradiction_chat_history.append({
@@ -324,6 +320,8 @@ col_left, col_center, col_right = st.columns([1, 2, 1])
 with col_center:
     if st.session_state.contradiction_pending_confirmation:
         st.subheader("Action Required: Contradiction Detected")
+        if 'contradiction_reason' in st.session_state and st.session_state.contradiction_reason:
+            st.info(f"Reason: {st.session_state.contradiction_reason}")
         # Only show the chatbox at the bottom (do not display previous chat history above)
         # Chat input for user interaction (locked at the bottom)
         chat_placeholder = st.empty()

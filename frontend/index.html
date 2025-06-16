@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noon Data Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚢 Noon Data Entry Chatbot</h1>
+        <form id="entryForm">
+            <label>Vessel Name: <input type="text" id="vesselName" required></label><br>
+            <label>Date: <input type="date" id="date" required></label><br>
+            <label>Laden/Ballast:
+                <select id="ladenBallast">
+                    <option value="Laden">Laden</option>
+                    <option value="Ballast">Ballast</option>
+                </select>
+            </label><br>
+            <label>Report Type:
+                <select id="reportType">
+                    <option value="At Sea">At Sea</option>
+                    <option value="Arrival">Arrival</option>
+                    <option value="Departure">Departure</option>
+                    <option value="Stoppage">Stoppage</option>
+                    <option value="Resume">Resume</option>
+                </select>
+            </label><br>
+            <button type="submit">Add Entry</button>
+        </form>
+        <button id="showDataBtn">Show/Hide Current Noon Data</button>
+        <div id="noonData" style="display:none;"></div>
+        <div id="contradictionChat" style="display:none;">
+            <h2>Contradiction Detected</h2>
+            <div id="chatHistory"></div>
+            <input type="text" id="chatInput" placeholder="Type your response...">
+            <button id="sendChat">Send</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

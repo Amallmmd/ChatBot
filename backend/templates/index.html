@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noon Data Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">🚢 Noon Data Entry Chatbot</h1>
+        <form id="entryForm" class="mb-4">
+            <div class="mb-3">
+                <label class="form-label">Vessel Name</label>
+                <input type="text" class="form-control" id="vesselName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Laden/Ballast</label>
+                <select class="form-select" id="ladenBallast">
+                    <option value="Laden">Laden</option>
+                    <option value="Ballast">Ballast</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Report Type</label>
+                <select class="form-select" id="reportType">
+                    <option value="At Sea">At Sea</option>
+                    <option value="Arrival">Arrival</option>
+                    <option value="Departure">Departure</option>
+                    <option value="Stoppage">Stoppage</option>
+                    <option value="Resume">Resume</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Entry</button>
+        </form>
+        <button id="showDataBtn" class="btn btn-secondary mb-3">Show/Hide Current Noon Data</button>
+        <div id="noonData" style="display:none;"></div>
+        <div id="contradictionChat" style="display:none;">
+            <h2>Contradiction Detected</h2>
+            <div id="chatHistory" class="mb-2"></div>
+            <div class="input-group">
+                <input type="text" class="form-control" id="chatInput" placeholder="Type your response...">
+                <button id="sendChat" class="btn btn-success">Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

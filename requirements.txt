@@ -2,3 +2,6 @@ streamlit
 pandas
 google-generativeai
 python-dotenv
+fastapi
+uvicorn
+pydantic

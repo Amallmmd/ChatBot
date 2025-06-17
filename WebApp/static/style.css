@@ -1,0 +1,115 @@
+body {
+  background: url('/static/shipwatch.jpg') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  color: #071447;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+/* body { background: #fefefe; color: #071447; font-family: 'Segoe UI', Arial, sans-serif; } */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background: inherit;
+  filter: blur(8px) brightness(0.8);
+  pointer-events: none;
+}
+.container, #contradictionChat, #entryForm, #noonData {
+  position: relative;
+  z-index: 1;
+}
+.container { max-width: 600px; margin: 40px auto; background: #e8ecff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 16px #b7c7d6; }
+h1 { text-align: center; color: #071447; margin-bottom: 24px; }
+#contradictionChat { background: #eaf6d5; border-radius: 10px; padding: 18px; margin-top: 24px; box-shadow: 0 2px 8px #cbe3a0; }
+#chatHistory { max-height: 320px; overflow-y: auto; margin-bottom: 12px; padding: 8px 0; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { padding: 12px 18px; border-radius: 18px; max-width: 80%; word-break: break-word; font-size: 1rem; box-shadow: 0 1px 4px #dbe6c4; transition: background 0.2s; opacity: 0; }
+.chat-msg.bot { background: #80c41c; color: #071447; align-self: flex-start; border-bottom-left-radius: 4px; }
+.chat-msg.user { background: #071447; color: #fcfcfc; align-self: flex-end; border-bottom-right-radius: 4px; }
+#chatInput { border: 2px solid #80c41c; border-radius: 8px 0 0 8px; padding: 10px; font-size: 1rem; outline: none; transition: border 0.2s; }
+#chatInput:focus { border-color: #071447; }
+#sendChat { background: #80c41c; color: #071447; border: none; border-radius: 0 8px 8px 0; padding: 10px 22px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; }
+#sendChat:hover { background: #071447; color: #fcfcfc; }
+#entryForm, #showDataBtn { margin-bottom: 18px; }
+/* Form field custom styles for color scheme */
+#entryForm .form-control, #entryForm .form-select {
+  background: #f6fbe9;
+  border: 2px solid #80c41c;
+  color: #071447;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+#entryForm .form-control:focus, #entryForm .form-select:focus {
+  border-color: #071447;
+  box-shadow: 0 0 0 2px #80c41c33;
+  background: #fff;
+  color: #071447;
+}
+#entryForm label.form-label {
+  color: #071447;
+  font-weight: 600;
+}
+#entryForm button[type="submit"] {
+  background: #071447;
+  color: #fcfcfc;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 10px 16px;
+  margin-top: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+#entryForm button[type="submit"]:hover {
+  background: #80c41c;
+  color: #071447;
+}
+
+/* Dark theme for form fields */
+#entryForm {
+  background: #071447;
+  border-radius: 12px;
+  padding: 24px 18px 18px 18px;
+  box-shadow: 0 2px 12px #1a1a2a33;
+}
+#entryForm .form-control, #entryForm .form-select {
+  background: #101c36;
+  border: 2px solid #80c41c;
+  color: #fcfcfc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+}
+#entryForm .form-control:focus, #entryForm .form-select:focus {
+  border-color: #80c41c;
+  box-shadow: 0 0 0 2px #80c41c55;
+  background: #18244a;
+  color: #fcfcfc;
+}
+#entryForm label.form-label {
+  color: #80c41c;
+  font-weight: 600;
+}
+#entryForm button[type="submit"] {
+  background: #80c41c;
+  color: #071447;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 10px 16px;
+  margin-top: 8px;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px #1a1a2a33;
+}
+#entryForm button[type="submit"]:hover {
+  background: #071447;
+  color: #fcfcfc;
+  border: 2px solid #80c41c;
+}
+#noonData table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+#noonData th, #noonData td { padding: 8px 10px; border: 1px solid #cbe3a0; text-align: center; }
+#noonData th { background: #80c41c; color: #071447; }
+#noonData tr:nth-child(even) { background: #f6fbe9; }
+#noonData tr:nth-child(odd) { background: #eaf6d5; }
+::-webkit-scrollbar { width: 8px; background: #eaf6d5; }
+::-webkit-scrollbar-thumb { background: #80c41c; border-radius: 4px; }

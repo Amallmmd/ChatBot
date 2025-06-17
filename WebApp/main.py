@@ -3,16 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from backend.models import NoonEntry, ContradictionCheckRequest, ContradictionCheckResponse, ChatRequest, ChatResponse, AddEntryRequest, NoonDataResponse
-from backend.storage import storage
-from backend.logic import check_for_contradiction
-from backend.gemini_api import generate_chat_response
+from WebApp.models import NoonEntry, ContradictionCheckRequest, ContradictionCheckResponse, ChatRequest, ChatResponse, AddEntryRequest, NoonDataResponse
+from WebApp.storage import storage
+from WebApp.logic import check_for_contradiction
+from WebApp.gemini_api import generate_chat_response, generate_initial_polite_message, model
 from typing import List
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="backend/static"), name="static")
-templates = Jinja2Templates(directory="backend/templates")
+app.mount("/static", StaticFiles(directory="WebApp/static"), name="static")
+templates = Jinja2Templates(directory="WebApp/templates")
 
 # Allow CORS for local frontend
 app.add_middleware(
@@ -39,10 +39,21 @@ def check_contradiction(req: ContradictionCheckRequest):
     is_contradiction, previous_status, reason = check_for_contradiction(
         req.vessel_name, req.new_laden_ballast, req.new_report_type, data
     )
+    initial_message = None
+    if is_contradiction:
+        # Generate initial polite message for contradiction
+        initial_message = generate_initial_polite_message(
+            vessel_name=req.vessel_name,
+            prev_status=previous_status,
+            new_status=req.new_laden_ballast,
+            date_str=str(data[0]['Date']) if data else '',
+            report_type=req.new_report_type,
+            model=model
+        )
     return ContradictionCheckResponse(
         is_contradiction=is_contradiction,
         previous_status=previous_status,
-        reason=reason
+        reason=initial_message if initial_message else reason
     )
 
 @app.post("/chat_response", response_model=ChatResponse)

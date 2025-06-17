@@ -26,7 +26,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     action: str
-    corrected_status: Optional[str]
+    corrected_status: Optional[str] = None
     bot_response: str
 
 class AddEntryRequest(BaseModel):

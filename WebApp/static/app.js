@@ -10,6 +10,13 @@ const sendChatBtn = document.getElementById('sendChat');
 
 let contradictionState = null;
 let chatHistory = [];
+let latestVessel = null;
+
+function clearForm() {
+    entryForm.reset();
+    // Optionally, reset date to today
+    // document.getElementById('date').value = new Date().toISOString().split('T')[0];
+}
 
 entryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -19,6 +26,7 @@ entryForm.addEventListener('submit', async (e) => {
         Laden_Ballst: document.getElementById('ladenBallast').value,
         Report_Type: document.getElementById('reportType').value
     };
+    latestVessel = entry.Vessel_name;
     // Check contradiction
     const checkRes = await fetch(`/check_contradiction`, {
         method: 'POST',
@@ -35,7 +43,7 @@ entryForm.addEventListener('submit', async (e) => {
             previous_status: checkRes.previous_status
         };
         contradictionChatDiv.style.display = 'block';
-        chatHistory = [{ role: 'assistant', content: checkRes.reason || 'Contradiction detected. Please confirm or correct.' }];
+        chatHistory = [{ role: 'bot', content: checkRes.reason || 'Contradiction detected. Please confirm or correct.' }];
         renderChat();
     } else {
         // Add entry directly
@@ -48,25 +56,39 @@ entryForm.addEventListener('submit', async (e) => {
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
+        clearForm();
     }
 });
 
 showDataBtn.addEventListener('click', async () => {
     if (noonDataDiv.style.display === 'none') {
         const data = await fetch(`/get_noon_data`).then(r => r.json());
-        renderNoonData(data.data);
+        let filtered = data.data;
+        if (latestVessel) {
+            filtered = filtered.filter(row => row.Vessel_name === latestVessel);
+        }
+        renderNoonData(filtered);
         noonDataDiv.style.display = 'block';
     } else {
         noonDataDiv.style.display = 'none';
     }
 });
 
-sendChatBtn.addEventListener('click', async () => {
-    const userMsg = chatInput.value;
+sendChatBtn.addEventListener('click', sendChat);
+chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        sendChat();
+    }
+});
+
+async function sendChat() {
+    const userMsg = chatInput.value.trim();
     if (!userMsg) return;
     chatHistory.push({ role: 'user', content: userMsg });
     renderChat();
     chatInput.value = '';
+    chatInput.focus();
     // Call chat_response API
     const res = await fetch(`/chat_response`, {
         method: 'POST',
@@ -78,7 +100,7 @@ sendChatBtn.addEventListener('click', async () => {
             new_status: contradictionState.entry.Laden_Ballst
         })
     }).then(r => r.json());
-    chatHistory.push({ role: 'assistant', content: res.bot_response });
+    chatHistory.push({ role: 'bot', content: res.bot_response });
     renderChat();
     if (res.action === 'proceed') {
         // Add entry
@@ -91,6 +113,8 @@ sendChatBtn.addEventListener('click', async () => {
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
+        latestVessel = contradictionState.entry.Vessel_name;
+        clearForm();
     } else if (res.action === 'correct' && res.corrected_status) {
         contradictionState.entry.Laden_Ballst = res.corrected_status;
         await fetch(`/add_entry`, {
@@ -102,17 +126,21 @@ sendChatBtn.addEventListener('click', async () => {
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
+        latestVessel = contradictionState.entry.Vessel_name;
+        clearForm();
     }
-});
+}
 
 function renderChat() {
     chatHistoryDiv.innerHTML = '';
     chatHistory.forEach(msg => {
         const div = document.createElement('div');
-        div.className = msg.role;
-        div.textContent = `${msg.role === 'user' ? 'You' : 'Bot'}: ${msg.content}`;
+        div.className = 'chat-msg ' + msg.role;
+        div.textContent = msg.content;
         chatHistoryDiv.appendChild(div);
+        setTimeout(() => { div.style.opacity = 1; }, 10);
     });
+    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 }
 
 function renderNoonData(data) {

@@ -30,7 +30,7 @@ def generate_dummy_data():
         delta = (end - start).days
         random_days = random.randint(0, delta)
         return start + timedelta(days=random_days)
-    report_types = ['At Sea', 'Arrival', 'Departure', 'Arrival At Berth', 'Departure From Berth']
+    report_types = ['At Sea', 'Arrival', 'In Port', 'Arrival at Berth', 'Departure from Berth', 'Departure']
     # Navig8 Messi: Full Laden
     for i in range(5):
         random_dt = random_date_in_range(start_date, end_date)

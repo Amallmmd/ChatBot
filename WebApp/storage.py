@@ -13,27 +13,29 @@ class DataStorage:
     def generate_dummy_data(self):
         data = []
         end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=60)
+        start_date = end_date - timedelta(days=10)
         def random_date_in_range(start, end):
             delta = (end - start).days
             random_days = random.randint(0, delta)
             return start + timedelta(days=random_days)
         report_types = ['At Sea', 'Arrival', 'Departure', 'Arrival At Berth', 'Departure From Berth']
+        messi_report = random.choice(report_types)
         for i in range(5):
             random_dt = random_date_in_range(start_date, end_date)
             data.append({
                 'Vessel_name': 'Navig8 Messi',
                 'Date': random_dt.strftime('%Y-%m-%d'),
                 'Laden_Ballst': 'Laden',
-                'Report_Type': random.choice(report_types)
+                'Report_Type': messi_report
             })
+        guard_report = random.choice(report_types)
         for i in range(5):
             random_dt = random_date_in_range(start_date, end_date)
             data.append({
                 'Vessel_name': 'Navig8 Guard',
                 'Date': random_dt.strftime('%Y-%m-%d'),
                 'Laden_Ballst': 'Ballast',
-                'Report_Type': random.choice(report_types)
+                'Report_Type': guard_report
             })
         return data
 
@@ -56,7 +58,7 @@ class DataStorage:
                         except Exception:
                             pass
             vessel_entries = [row for row in self._data if row['Vessel_name'] == vessel_name]
-            vessel_entries.sort(key=lambda x: x['Date'], reverse=True)
+            vessel_entries.sort(key=lambda x: x['Date'], reverse=False)
             self._data = [row for row in self._data if row['Vessel_name'] != vessel_name]
             self._data.extend(vessel_entries)
 

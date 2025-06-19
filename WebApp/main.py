@@ -29,7 +29,7 @@ def serve_index(request: Request):
 
 @app.post("/add_entry")
 def add_entry(req: AddEntryRequest):
-    entry = req.entry.dict()
+    entry = req.entry.model_dump()
     storage.add_entry(entry)
     return {"success": True}
 

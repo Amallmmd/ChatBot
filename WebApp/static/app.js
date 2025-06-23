@@ -97,25 +97,25 @@ async function sendChat() {
             conversation_history: chatHistory,
             vessel_name: contradictionState.entry.Vessel_name,
             previous_status: contradictionState.previous_status,
-            new_status: contradictionState.entry.Laden_Ballst
+            new_status: contradictionState.entry.Laden_Ballst,
+            new_report_type: contradictionState.entry.Report_Type
         })
     }).then(r => r.json());
     chatHistory.push({ role: 'bot', content: res.bot_response });
     renderChat();
     if (res.action === 'proceed') {
-        // Add entry
         await fetch(`/add_entry`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ entry: contradictionState.entry })
         });
         alert('Data updated as requested!');
+        latestVessel = contradictionState.entry.Vessel_name;
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
-        latestVessel = contradictionState.entry.Vessel_name;
         clearForm();
-    } else if (res.action === 'correct' && res.corrected_status) {
+    } else if (res.action === 'correct_status' && res.corrected_status) {
         contradictionState.entry.Laden_Ballst = res.corrected_status;
         await fetch(`/add_entry`, {
             method: 'POST',
@@ -123,10 +123,23 @@ async function sendChat() {
             body: JSON.stringify({ entry: contradictionState.entry })
         });
         alert(`Data updated to ${res.corrected_status} as requested!`);
+        latestVessel = contradictionState.entry.Vessel_name;
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
+        clearForm();
+    } else if (res.action === 'correct_report_type' && res.corrected_report_type) {
+        contradictionState.entry.Report_Type = res.corrected_report_type;
+        await fetch(`/add_entry`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ entry: contradictionState.entry })
+        });
+        alert(`Report type updated to ${res.corrected_report_type} as requested!`);
         latestVessel = contradictionState.entry.Vessel_name;
+        contradictionChatDiv.style.display = 'none';
+        contradictionState = null;
+        chatHistory = [];
         clearForm();
     }
 }

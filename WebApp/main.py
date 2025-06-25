@@ -82,7 +82,8 @@ def chat_response(req: ChatRequest):
         req.conversation_history,
         req.vessel_name,
         req.previous_status,
-        req.new_status
+        req.new_status,
+        req.new_report_type,
     )
     return ChatResponse(**result)
 

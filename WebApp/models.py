@@ -23,6 +23,7 @@ class ChatRequest(BaseModel):
     vessel_name: str
     previous_status: Optional[str]
     new_status: str
+    new_report_type: str
 
 class ChatResponse(BaseModel):
     action: str

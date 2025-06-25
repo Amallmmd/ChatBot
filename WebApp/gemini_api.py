@@ -11,7 +11,7 @@ if not GOOGLE_API_KEY:
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
-def generate_chat_response(conversation_history, vessel_name, previous_status, new_status, new_report_type=None, seq_reason=None, laden_reason=None):
+def generate_chat_response(conversation_history, vessel_name, previous_status, new_status, new_report_type, seq_reason=None, laden_reason=None):
     formatted_conversation = []
     for msg in conversation_history:
         if msg['role'] == 'user':
@@ -36,7 +36,7 @@ def generate_chat_response(conversation_history, vessel_name, previous_status, n
     Respond ONLY with a JSON object. The JSON object must have the following keys:
     - `action`: "proceed" | "correct_status" | "correct_report_type" | "clarify"
     - `corrected_status`: "Laden" | "Ballast" (only if `action` is "correct_status" and status is specified)
-    - `corrected_report_type`: 'At Sea' | 'Arrival' | 'In Port' | 'Departure' | 'Arrival at Berth' | 'Departure from Berth' (only if `action` is "correct_report_type" and report type is specified)
+    - `corrected_report_type`: "At Sea" | "Arrival" | "In Port" | "Departure" | "Arrival at Berth" | "Departure from Berth" (only if `action` is "correct_report_type" and report type is specified)
     - `bot_response`: A natural language response to the user.
     """
     if seq_reason:

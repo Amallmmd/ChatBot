@@ -24,6 +24,7 @@ class ChatRequest(BaseModel):
     previous_status: Optional[str]
     new_status: str
     new_report_type: str
+    # date: str  # <-- Add this field
 
 class ChatResponse(BaseModel):
     action: str

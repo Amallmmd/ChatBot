@@ -15,20 +15,20 @@ class DataStorage:
         end_date = datetime.now().date() - timedelta(days=1)  # yesterday
         start_date = end_date - timedelta(days=4)  # previous 5 days from yesterday
         date_list = [(start_date + timedelta(days=i)) for i in range(5)]
-        # Fixed report types for demo
+        report_types = ['At Sea', 'Arrival', 'In Port', 'Arrival At Berth', 'Departure from Berth', 'Departure']
         for i, dt in enumerate(date_list):
             data.append({
                 'Vessel_name': 'Navig8 Messi',
                 'Date': dt.strftime('%Y-%m-%d'),
                 'Laden_Ballst': 'Laden',
-                'Report_Type': "At Sea"
+                'Report_Type': report_types[0]
             })
         for i, dt in enumerate(date_list):
             data.append({
                 'Vessel_name': 'Navig8 Guard',
                 'Date': dt.strftime('%Y-%m-%d'),
                 'Laden_Ballst': 'Ballast',
-                'Report_Type': "In Port"
+                'Report_Type': report_types[4]
             })
         return data
 

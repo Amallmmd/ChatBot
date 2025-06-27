@@ -8,6 +8,7 @@ from WebApp.storage import storage
 from WebApp.logic import check_for_contradiction, check_report_sequence, check_laden_ballast_change
 from WebApp.gemini_api import generate_chat_response, generate_initial_polite_message, model
 from typing import List
+from datetime import datetime
 
 app = FastAPI()
 
@@ -60,11 +61,12 @@ def check_contradiction(req: ContradictionCheckRequest):
         is_contradiction = True
     if is_contradiction:
         # Generate initial polite message for contradiction
+        date_str = datetime.now().date()
         initial_message = generate_initial_polite_message(
             vessel_name=req.vessel_name,
             prev_status=prev_status or 'Unknown',
             new_status=req.new_laden_ballast or 'Unknown',
-            date_str=str(data[0]['Date']) if data else '',
+            date_str=str(date_str),
             report_type=req.new_report_type or 'Unknown',
             model=model,
             seq_reason=seq_reason if not is_seq_valid else None,

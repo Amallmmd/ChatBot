@@ -78,7 +78,7 @@ def generate_initial_polite_message(vessel_name, prev_status, new_status, date_s
         # Laden/Ballast contradiction: Use the existing conversational prompt and ask for correction.
         initial_message_prompt = f"""
         You are a helpful and polite assistant for a maritime data entry system. A user (Vessel Master) is trying to enter noon data.
-        The vessel '{vessel_name}' has consistently been recorded as '{prev_status}' in its last 5 entries, but the new entry suggests it is now '{new_status}'.
+        The vessel '{vessel_name}' has consistently been recorded as '{prev_status}' in its last entries, but the new entry suggests it is now '{new_status}'.
         The latest entry date is {date_str}.
         Please craft a very polite, conversational, and concise initial message to the user, strictly limited to one or two sentences.
         Start with a soft apology like \"Hey Master,\" or similar.

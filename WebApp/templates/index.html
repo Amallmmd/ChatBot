@@ -6,10 +6,23 @@
     <title>Noon Data Chatbot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Hide the default browser calendar icon for date input */
+        input[type="date"].hide-native-calendar::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            display: none;
+        }
+        input[type="date"].hide-native-calendar::-ms-input-placeholder { color: transparent; }
+        input[type="date"].hide-native-calendar::-moz-placeholder { color: transparent; }
+        input[type="date"].hide-native-calendar:-ms-input-placeholder { color: transparent; }
+        input[type="date"].hide-native-calendar::placeholder { color: transparent; }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1> ShipWatch Assistant 💬</h1>
+        <div class="text-center mb-4">
+            <img src="/static/Ship-watch-bot-logo.jpeg" alt="ShipWatch Logo" style="max-width: 100%; width: 100%; height: auto; display: inline-block; border-radius: 18px; box-shadow: 0 2px 16px #b7c7d6;" />
+        </div>
         <form id="entryForm" class="mb-4">
             <div class="mb-3">
                 <label class="form-label">Vessel Name</label>
@@ -18,9 +31,10 @@
                     <option value="Navig8 Guard">Navig8 Guard</option>
                 </select>
             </div>
-            <div class="mb-3">
+            <div class="mb-3 position-relative">
                 <label class="form-label">Date</label>
-                <input type="date" class="form-control" id="date" required>
+                <input type="date" class="form-control hide-native-calendar" id="date" required style="padding-right: 40px;" max="{{ today }}">
+                <img src="/static/green_calendar.svg" alt="Calendar" id="calendarIcon" style="position: absolute; right: 16px; top: 38px; width: 24px; height: 24px; cursor: pointer; opacity: 0.7;" />
             </div>
             <div class="mb-3">
                 <label class="form-label">Laden/Ballast</label>
@@ -55,5 +69,18 @@
     </div>
     <script src="/static/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set max date to today
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('max', today);
+        // Make calendar icon open the date picker
+        const calendarIcon = document.getElementById('calendarIcon');
+        calendarIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            // For most browsers, this will open the date picker
+            dateInput.showPicker ? dateInput.showPicker() : dateInput.click();
+        });
+    </script>
 </body>
 </html>

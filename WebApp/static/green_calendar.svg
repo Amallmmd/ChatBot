@@ -1,0 +1,92 @@
+<svg width="300" height="350" viewBox="0 0 300 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Calendar base -->
+  <rect x="20" y="40" width="260" height="290" fill="#80c41c" stroke="#5a8b14" stroke-width="6" rx="15"/>
+  
+  <!-- Calendar header -->
+  <rect x="30" y="50" width="240" height="60" fill="#9ed633" stroke="#80c41c" stroke-width="4" rx="8"/>
+  
+  <!-- Month/Year text area -->
+  <rect x="40" y="60" width="220" height="40" fill="#b3e54a" rx="5"/>
+  <text x="150" y="85" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="bold">JUNE 2025</text>
+  
+  <!-- Spiral binding rings -->
+  <circle cx="80" cy="25" r="12" fill="none" stroke="#80c41c" stroke-width="6"/>
+  <circle cx="150" cy="25" r="12" fill="none" stroke="#80c41c" stroke-width="6"/>
+  <circle cx="220" cy="25" r="12" fill="none" stroke="#80c41c" stroke-width="6"/>
+  
+  <!-- Binding ring connectors -->
+  <rect x="74" y="25" width="12" height="20" fill="#80c41c"/>
+  <rect x="144" y="25" width="12" height="20" fill="#80c41c"/>
+  <rect x="214" y="25" width="12" height="20" fill="#80c41c"/>
+  
+  <!-- Days of week header -->
+  <rect x="35" y="120" width="230" height="30" fill="#5a8b14" stroke="#4a7a0f" stroke-width="3"/>
+  
+  <!-- Day labels -->
+  <text x="55" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">S</text>
+  <text x="85" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">M</text>
+  <text x="115" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">T</text>
+  <text x="145" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">W</text>
+  <text x="175" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">T</text>
+  <text x="205" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">F</text>
+  <text x="235" y="140" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">S</text>
+  
+  <!-- Calendar grid -->
+  <g stroke="#80c41c" stroke-width="3" fill="none">
+    <!-- Horizontal lines -->
+    <line x1="35" y1="155" x2="265" y2="155"/>
+    <line x1="35" y1="185" x2="265" y2="185"/>
+    <line x1="35" y1="215" x2="265" y2="215"/>
+    <line x1="35" y1="245" x2="265" y2="245"/>
+    <line x1="35" y1="275" x2="265" y2="275"/>
+    <line x1="35" y1="305" x2="265" y2="305"/>
+    
+    <!-- Vertical lines -->
+    <line x1="67" y1="155" x2="67" y2="305"/>
+    <line x1="99" y1="155" x2="99" y2="305"/>
+    <line x1="131" y1="155" x2="131" y2="305"/>
+    <line x1="163" y1="155" x2="163" y2="305"/>
+    <line x1="195" y1="155" x2="195" y2="305"/>
+    <line x1="227" y1="155" x2="227" y2="305"/>
+  </g>
+  
+  <!-- Sample dates -->
+  <text x="51" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">1</text>
+  <text x="83" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">2</text>
+  <text x="115" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">3</text>
+  <text x="147" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">4</text>
+  <text x="179" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">5</text>
+  <text x="211" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">6</text>
+  <text x="243" y="175" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">7</text>
+  
+  <text x="51" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">8</text>
+  <text x="83" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">9</text>
+  <text x="115" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">10</text>
+  <text x="147" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">11</text>
+  <text x="179" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">12</text>
+  <text x="211" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">13</text>
+  <text x="243" y="205" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">14</text>
+  
+  <!-- Current day highlight -->
+  <rect x="205" y="215" width="24" height="24" fill="#4a7c4a" stroke="#2d5a2d" stroke-width="3" rx="3"/>
+  <text x="217" y="235" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">21</text>
+  
+  <!-- More dates -->
+  <text x="51" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">15</text>
+  <text x="83" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">16</text>
+  <text x="115" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">17</text>
+  <text x="147" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">18</text>
+  <text x="179" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">19</text>
+  <text x="243" y="235" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">20</text>
+  
+  <text x="51" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">22</text>
+  <text x="83" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">23</text>
+  <text x="115" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">24</text>
+  <text x="147" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">25</text>
+  <text x="179" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">26</text>
+  <text x="211" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">27</text>
+  <text x="243" y="265" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">28</text>
+  
+  <text x="51" y="295" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">29</text>
+  <text x="83" y="295" text-anchor="middle" fill="#66b366" font-family="Arial, sans-serif" font-size="14" font-weight="bold">30</text>
+</svg>

@@ -5,8 +5,8 @@ REPORT_SEQUENCE = [
     "At Sea",
     "Arrival",
     "Arrival At Berth",
-    "In Port",  # Can repeat any number of times between Arrival At Berth and Departure from Berth
-    "Departure from Berth",
+    "In Port",  # Can repeat any number of times between Arrival At Berth and Departure From Berth
+    "Departure From Berth",
     "Departure"
 ]
 
@@ -27,11 +27,11 @@ def get_next_valid_report_types(history):
         return [REPORT_SEQUENCE[0]]
     idx = REPORT_SEQUENCE.index(last)
     if last == "Arrival At Berth":
-        return ["Arrival At Berth", "In Port", "Departure from Berth"]
-    if last == "Departure from Berth":
-        return ["Departure from Berth", "In Port", "Departure"]
+        return ["Arrival At Berth", "In Port", "Departure From Berth"]
+    if last == "Departure From Berth":
+        return ["Departure From Berth", "In Port", "Departure"]
     if last == "In Port":
-        return ["In Port", "Arrival At Berth", "Departure from Berth"]
+        return ["In Port", "Arrival At Berth", "Departure From Berth"]
     if last == "Arrival":
         return ["Arrival","Arrival At Berth"]
     if last == "At Sea":
@@ -43,12 +43,12 @@ def get_next_valid_report_types(history):
 def check_report_sequence(vessel_history, new_report_type):
     history_types = [row['Report_Type'] for row in vessel_history]
     valid_next = get_next_valid_report_types(history_types)
-    # In Port can repeat between Arrival At Berth and Departure from Berth
+    # In Port can repeat between Arrival At Berth and Departure From Berth
     if new_report_type == "In Port":
-        if "Arrival At Berth" in history_types and ("Departure from Berth" not in history_types or history_types.index("Arrival At Berth") > history_types.index("Departure from Berth") ):
+        if "Arrival At Berth" in history_types and ("Departure From Berth" not in history_types or history_types.index("Arrival At Berth") > history_types.index("Departure From Berth") ):
             return True, None
         else:
-            return False, ("'In Port' is only allowed after 'Arrival At Berth' and before 'Departure from Berth'. "
+            return False, ("'In Port' is only allowed after 'Arrival At Berth' and before 'Departure From Berth'. "
                            "Please enter 'In Port' only between these two events.")
     if new_report_type in valid_next:
         return True, None
@@ -75,7 +75,7 @@ def check_laden_ballast_change(vessel_history, new_laden_ballast, new_report_typ
             if row['Report_Type'] == 'Arrival At Berth':
                 allowed = True
                 break
-            if row['Report_Type'] in ['Departure from Berth', 'Departure']:
+            if row['Report_Type'] in ['Departure From Berth', 'Departure']:
                 break
         if not allowed:
             return False, "Laden/Ballast status can only change after 'Arrival At Berth'."

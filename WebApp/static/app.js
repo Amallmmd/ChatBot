@@ -1,8 +1,8 @@
 const API_BASE = '';
 
 const entryForm = document.getElementById('entryForm');
-const showDataBtn = document.getElementById('showDataBtn');
 const noonDataDiv = document.getElementById('noonData');
+const showDataBtn = document.getElementById('showDataBtn');
 const contradictionChatDiv = document.getElementById('contradictionChat');
 const chatHistoryDiv = document.getElementById('chatHistory');
 const chatInput = document.getElementById('chatInput');
@@ -18,8 +18,16 @@ function clearForm() {
     // document.getElementById('date').value = new Date().toISOString().split('T')[0];
 }
 
+window.addEventListener('DOMContentLoaded', async () => {
+    const data = await fetch(`/get_noon_data`).then(r => r.json());
+    renderNoonData(data.data);
+    noonDataDiv.style.display = 'block';
+});
+
 entryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Hide noon data immediately when Add Entry is pressed
+    noonDataDiv.style.display = 'none';
     const entry = {
         Vessel_name: document.getElementById('vesselName').value,
         Date: document.getElementById('date').value,
@@ -57,6 +65,8 @@ entryForm.addEventListener('submit', async (e) => {
         contradictionState = null;
         chatHistory = [];
         clearForm();
+        // Hide noon data after adding entry
+        noonDataDiv.style.display = 'none';
     }
 });
 

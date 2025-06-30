@@ -25,8 +25,8 @@ These installation instructions assume that you have conda installed and added t
 1. Clone the Repository: Clone this repository to your local machine using the following command:
 
    ```bash
-   git clone <your-repo-url>
-   cd <your-repo-folder>
+   git clone <https://github.com/Amallmmd/ChatBot.git>
+   cd <https://github.com/Amallmmd/ChatBot.git>
    ```
 
 2. Create a virtual environment (or modify an existing one).

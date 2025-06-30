@@ -138,20 +138,8 @@ async function sendChat() {
         contradictionState = null;
         chatHistory = [];
         clearForm();
-    } else if (res.action === 'correct_report_type' && res.corrected_report_type) {
-        contradictionState.entry.Report_Type = res.corrected_report_type;
-        await fetch(`/add_entry`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ entry: contradictionState.entry })
-        });
-        alert(`Report type updated to ${res.corrected_report_type} as requested!`);
-        latestVessel = contradictionState.entry.Vessel_name;
-        contradictionChatDiv.style.display = 'none';
-        contradictionState = null;
-        chatHistory = [];
-        clearForm();
-    }
+    } 
+    
 }
 
 function renderChat() {

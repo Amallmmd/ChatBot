@@ -98,6 +98,16 @@ def check_laden_ballast_change(vessel_history, new_laden_ballast, new_report_typ
 
 def check_for_contradiction(vessel_name: str, new_laden_ballast: str, new_report_type: str, data: List[Dict], lookback_rows: int = 5) -> Tuple[bool, Optional[str], Optional[str]]:
     vessel_df = [row for row in data if row['Vessel_name'] == vessel_name]
+    # Normalize all 'Date' fields to datetime.date for consistent sorting
+    for row in vessel_df:
+        if isinstance(row['Date'], str):
+            try:
+                row['Date'] = datetime.strptime(row['Date'], '%Y-%m-%d').date()
+            except ValueError:
+                try:
+                    row['Date'] = datetime.strptime(row['Date'], '%Y-%m-%dT%H:%M:%S').date()
+                except Exception:
+                    pass  # If parsing fails, leave as is
     vessel_df = sorted(vessel_df, key=lambda x: x['Date'], reverse=False)
     if len(vessel_df) < lookback_rows:
         return False, None, None

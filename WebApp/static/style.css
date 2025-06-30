@@ -30,7 +30,7 @@ h1 { text-align: center; color: #071447; margin-bottom: 24px; }
 #chatInput:focus { border-color: #071447; }
 #sendChat { background: #80c41c; color: #071447; border: none; border-radius: 0 8px 8px 0; padding: 10px 22px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; }
 #sendChat:hover { background: #071447; color: #fcfcfc; }
-#entryForm, #showDataBtn { margin-bottom: 18px; }
+#entryForm, #showDataBtn { background: #071447; margin-bottom: 18px; }
 /* Form field custom styles for color scheme */
 #entryForm .form-control, #entryForm .form-select {
   background: #f6fbe9;
@@ -112,4 +112,4 @@ h1 { text-align: center; color: #071447; margin-bottom: 24px; }
 #noonData tr:nth-child(even) { background: #f6fbe9; }
 #noonData tr:nth-child(odd) { background: #eaf6d5; }
 ::-webkit-scrollbar { width: 8px; background: #eaf6d5; }
-::-webkit-scrollbar-thumb { background: #80c41c; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #071447; border-radius: 4px; }

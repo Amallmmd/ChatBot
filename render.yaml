@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: chatbot-fastapi
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn WebApp.main:app --host 0.0.0.0 --port 10000"
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false

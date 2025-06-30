@@ -4,7 +4,7 @@ venv/
 
 # Environment variables
 .env
-
+.env/
 # Log files
 *.log
 
@@ -38,3 +38,5 @@ htmlcov/
 # Other
 *.bak
 *.swp
+
+/app.py

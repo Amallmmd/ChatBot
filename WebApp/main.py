@@ -5,9 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from WebApp.models import NoonEntry, ContradictionCheckRequest, ContradictionCheckResponse, ChatRequest, ChatResponse, AddEntryRequest, NoonDataResponse
 from WebApp.storage import storage
-from WebApp.logic import check_for_contradiction
+from WebApp.logic import check_for_contradiction, check_report_sequence, check_laden_ballast_change
 from WebApp.gemini_api import generate_chat_response, generate_initial_polite_message, model
 from typing import List
+from datetime import datetime
 
 app = FastAPI()
 
@@ -33,26 +34,47 @@ def add_entry(req: AddEntryRequest):
     storage.add_entry(entry)
     return {"success": True}
 
+def get_last_known_status_and_report(vessel_history):
+    if not vessel_history:
+        return None, None
+    last_entry = vessel_history[-1]
+    prev_status = last_entry.get('Laden_Ballst') or last_entry.get('Laden/Ballst')
+    prev_report = last_entry.get('Report_Type')
+    return prev_status, prev_report
+
 @app.post("/check_contradiction", response_model=ContradictionCheckResponse)
 def check_contradiction(req: ContradictionCheckRequest):
     data = storage.get_data()
-    is_contradiction, previous_status, reason = check_for_contradiction(
+    vessel_history = [row for row in data if row['Vessel_name'] == req.vessel_name]
+    prev_status, prev_report = get_last_known_status_and_report(vessel_history)
+    is_seq_valid, seq_reason = check_report_sequence(vessel_history, req.new_report_type)
+    is_laden_valid, laden_reason = check_laden_ballast_change(vessel_history, req.new_laden_ballast, req.new_report_type)
+    is_contradiction, _, reason = check_for_contradiction(
         req.vessel_name, req.new_laden_ballast, req.new_report_type, data
     )
     initial_message = None
+    if not is_seq_valid:
+        reason = seq_reason
+        is_contradiction = True
+    elif not is_laden_valid:
+        reason = laden_reason
+        is_contradiction = True
     if is_contradiction:
         # Generate initial polite message for contradiction
+        date_str = datetime.now().date()
         initial_message = generate_initial_polite_message(
             vessel_name=req.vessel_name,
-            prev_status=previous_status,
-            new_status=req.new_laden_ballast,
-            date_str=str(data[0]['Date']) if data else '',
-            report_type=req.new_report_type,
-            model=model
+            prev_status=prev_status or 'Unknown',
+            new_status=req.new_laden_ballast or 'Unknown',
+            date_str=str(date_str),
+            report_type=req.new_report_type or 'Unknown',
+            model=model,
+            seq_reason=seq_reason if not is_seq_valid else None,
+            laden_reason=laden_reason if not is_laden_valid else None
         )
     return ContradictionCheckResponse(
         is_contradiction=is_contradiction,
-        previous_status=previous_status,
+        previous_status=prev_status,
         reason=initial_message if initial_message else reason
     )
 
@@ -62,7 +84,8 @@ def chat_response(req: ChatRequest):
         req.conversation_history,
         req.vessel_name,
         req.previous_status,
-        req.new_status
+        req.new_status,
+        req.new_report_type,
     )
     return ChatResponse(**result)
 

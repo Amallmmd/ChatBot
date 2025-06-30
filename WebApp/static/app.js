@@ -1,8 +1,8 @@
 const API_BASE = '';
 
 const entryForm = document.getElementById('entryForm');
-const showDataBtn = document.getElementById('showDataBtn');
 const noonDataDiv = document.getElementById('noonData');
+const showDataBtn = document.getElementById('showDataBtn');
 const contradictionChatDiv = document.getElementById('contradictionChat');
 const chatHistoryDiv = document.getElementById('chatHistory');
 const chatInput = document.getElementById('chatInput');
@@ -18,8 +18,16 @@ function clearForm() {
     // document.getElementById('date').value = new Date().toISOString().split('T')[0];
 }
 
+window.addEventListener('DOMContentLoaded', async () => {
+    const data = await fetch(`/get_noon_data`).then(r => r.json());
+    renderNoonData(data.data);
+    noonDataDiv.style.display = 'block';
+});
+
 entryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Hide noon data immediately when Add Entry is pressed
+    noonDataDiv.style.display = 'none';
     const entry = {
         Vessel_name: document.getElementById('vesselName').value,
         Date: document.getElementById('date').value,
@@ -57,6 +65,8 @@ entryForm.addEventListener('submit', async (e) => {
         contradictionState = null;
         chatHistory = [];
         clearForm();
+        // Hide noon data after adding entry
+        noonDataDiv.style.display = 'none';
     }
 });
 
@@ -97,25 +107,25 @@ async function sendChat() {
             conversation_history: chatHistory,
             vessel_name: contradictionState.entry.Vessel_name,
             previous_status: contradictionState.previous_status,
-            new_status: contradictionState.entry.Laden_Ballst
+            new_status: contradictionState.entry.Laden_Ballst,
+            new_report_type: contradictionState.entry.Report_Type
         })
     }).then(r => r.json());
     chatHistory.push({ role: 'bot', content: res.bot_response });
     renderChat();
     if (res.action === 'proceed') {
-        // Add entry
         await fetch(`/add_entry`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ entry: contradictionState.entry })
         });
         alert('Data updated as requested!');
+        latestVessel = contradictionState.entry.Vessel_name;
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
-        latestVessel = contradictionState.entry.Vessel_name;
         clearForm();
-    } else if (res.action === 'correct' && res.corrected_status) {
+    } else if (res.action === 'correct_status' && res.corrected_status) {
         contradictionState.entry.Laden_Ballst = res.corrected_status;
         await fetch(`/add_entry`, {
             method: 'POST',
@@ -123,12 +133,13 @@ async function sendChat() {
             body: JSON.stringify({ entry: contradictionState.entry })
         });
         alert(`Data updated to ${res.corrected_status} as requested!`);
+        latestVessel = contradictionState.entry.Vessel_name;
         contradictionChatDiv.style.display = 'none';
         contradictionState = null;
         chatHistory = [];
-        latestVessel = contradictionState.entry.Vessel_name;
         clearForm();
-    }
+    } 
+    
 }
 
 function renderChat() {
